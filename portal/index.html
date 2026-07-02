@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ΛLΞSS1Λ Label Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #07050F;
+      --surface: #100D20;
+      --card:    #160F2A;
+      --purple:  #A855F7;
+      --pink:    #EC4899;
+      --green:   #22C55E;
+      --red:     #EF4444;
+      --text:    #F0EEFF;
+      --muted:   #6B6880;
+      --border:  rgba(168,85,247,0.15);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Login screen */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+
+    .login-card h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-card p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: var(--purple); }
+
+    input[type="password"] { letter-spacing: 0.2em; }
+
+    button {
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white;
+      padding: 0.75rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .error-msg {
+      color: var(--red);
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Main portal */
+    #portal-screen { display: none; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header span {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .logout-btn {
+      background: rgba(239,68,68,0.1);
+      color: var(--red);
+      border: 1px solid rgba(239,68,68,0.2);
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      font-size: 0.8rem;
+    }
+
+    .logout-btn:hover { background: rgba(239,68,68,0.2); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.25rem;
+      padding: 1.5rem 2rem 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      background: none;
+      color: var(--muted);
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn.active {
+      color: var(--text);
+      border-bottom-color: var(--purple);
+      background: rgba(168,85,247,0.08);
+    }
+
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
+    /* Content */
+    .content { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Section header */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white;
+      padding: 0.5rem 1.2rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .btn-add:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .release-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .release-card:hover { border-color: rgba(168,85,247,0.4); }
+
+    .release-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .release-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .status-pill {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-draft { background: rgba(107,104,128,0.2); color: var(--muted); }
+    .status-ready { background: rgba(168,85,247,0.2); color: var(--purple); }
+    .status-released { background: rgba(34,197,94,0.2); color: var(--green); }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .btn-edit {
+      background: rgba(168,85,247,0.1);
+      color: var(--purple);
+      border: 1px solid rgba(168,85,247,0.2);
+    }
+
+    .btn-edit:hover { background: rgba(168,85,247,0.2); }
+
+    .btn-delete {
+      background: rgba(239,68,68,0.1);
+      color: var(--red);
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    .btn-delete:hover { background: rgba(239,68,68,0.2); }
+
+    /* Upload area */
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--purple);
+      background: rgba(168,85,247,0.05);
+    }
+
+    .upload-area p { color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; }
+    .upload-area span { font-size: 2.5rem; }
+
+    .file-list { list-style: none; }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .file-item-name { color: var(--text); }
+    .file-item-meta { color: var(--muted); font-size: 0.75rem; }
+
+    .file-actions { display: flex; gap: 0.5rem; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+
+    select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      background: rgba(107,104,128,0.15);
+      color: var(--muted);
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* Upload form */
+    .upload-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+
+    .stat-card .label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 1.8rem; font-weight: 700; }
+    .stat-card .value.purple { background: linear-gradient(135deg, var(--purple), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .loading { color: var(--muted); font-size: 0.9rem; padding: 2rem; text-align: center; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .upload-form { grid-template-columns: 1fr; }
+      .content { padding: 1rem; }
+      header { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>ΛLΞSS1Λ</h1>
+    <p>Label Portal — Lunar Eternal Music Group</p>
+    <input type="password" id="password-input" placeholder="Enter portal password" />
+    <div class="error-msg" id="login-error"></div>
+    <button class="btn-primary" onclick="login()" style="margin-top:0.5rem">Enter Portal</button>
+  </div>
+</div>
+
+<!-- Portal Screen -->
+<div id="portal-screen">
+  <header>
+    <div>
+      <h1>ΛLΞSS1Λ Portal</h1>
+      <span>Lunar Eternal Music Group</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Log out</button>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard', this)">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('releases', this)">Releases</button>
+    <button class="tab-btn" onclick="switchTab('files', this)">Files</button>
+  </div>
+
+  <div class="content">
+
+    <!-- Dashboard -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="label">Total Releases</div><div class="value purple" id="stat-total">—</div></div>
+        <div class="stat-card"><div class="label">Released</div><div class="value purple" id="stat-released">—</div></div>
+        <div class="stat-card"><div class="label">Ready</div><div class="value purple" id="stat-ready">—</div></div>
+        <div class="stat-card"><div class="label">Drafts</div><div class="value purple" id="stat-draft">—</div></div>
+      </div>
+      <div class="section-header"><h2>Upcoming Releases</h2></div>
+      <div id="upcoming-list"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- Releases -->
+    <div class="tab-panel" id="tab-releases">
+      <div class="section-header">
+        <h2>All Releases</h2>
+        <button class="btn-add" onclick="openReleaseModal()">+ New Release</button>
+      </div>
+      <div class="card-grid" id="releases-list"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- Files -->
+    <div class="tab-panel" id="tab-files">
+      <div class="section-header"><h2>File Storage</h2></div>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <h3 style="margin-bottom:1rem;font-size:0.9rem;color:var(--muted)">Upload Files</h3>
+        <div class="upload-form">
+          <div class="form-group">
+            <label>Release</label>
+            <select id="upload-release">
+              <option value="uncategorized">Uncategorized</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Folder</label>
+            <select id="upload-folder">
+              <option value="masters">Masters</option>
+              <option value="stems">Stems</option>
+              <option value="artwork">Artwork</option>
+              <option value="demos">Demos</option>
+              <option value="docs">Documents</option>
+              <option value="misc">Misc</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn-add" onclick="document.getElementById('file-input').click()">Choose File</button>
+          </div>
+        </div>
+        <input type="file" id="file-input" style="display:none" onchange="uploadFile(this)" multiple />
+        <div class="upload-area" onclick="document.getElementById('file-input').click()"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          ondrop="handleDrop(event)">
+          <span>📁</span>
+          <p>Drag & drop files here or click to browse</p>
+          <p style="font-size:0.75rem;margin-top:0.25rem">Masters, stems, artwork, demos — anything</p>
+        </div>
+        <div id="upload-status" style="font-size:0.85rem;color:var(--muted);"></div>
+      </div>
+
+      <div class="section-header">
+        <h2>Stored Files</h2>
+        <button class="btn-add" onclick="loadFiles()">↻ Refresh</button>
+      </div>
+      <ul class="file-list" id="files-list"><div class="loading">Loading...</div></ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- Release Modal -->
+<div class="modal-overlay" id="release-modal">
+  <div class="modal">
+    <h2 id="modal-title">New Release</h2>
+    <input type="hidden" id="release-id" />
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Title</label>
+        <input type="text" id="r-title" placeholder="Track title" />
+      </div>
+      <div class="form-group">
+        <label>Genre</label>
+        <input type="text" id="r-genre" placeholder="Dream Trance" />
+      </div>
+      <div class="form-group">
+        <label>BPM</label>
+        <input type="number" id="r-bpm" placeholder="128" />
+      </div>
+      <div class="form-group">
+        <label>Key</label>
+        <input type="text" id="r-key" placeholder="A minor" />
+      </div>
+      <div class="form-group">
+        <label>Release Date</label>
+        <input type="date" id="r-date" />
+      </div>
+      <div class="form-group">
+        <label>ISRC</label>
+        <input type="text" id="r-isrc" placeholder="NL-..." />
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="r-status">
+          <option value="draft">Draft</option>
+          <option value="ready">Ready</option>
+          <option value="released">Released</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Notes</label>
+        <textarea id="r-notes" placeholder="Ideas, to-dos, reminders..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeReleaseModal()">Cancel</button>
+      <button class="btn-save" onclick="saveRelease()">Save Release</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────
+  const WORKER_URL = 'https://alessia-portal-worker.musicrecordings123.workers.dev';
+
+  let token = '';
+
+  // ── Auth ─────────────────────────────────────────────────
+  function login() {
+    const pw = document.getElementById('password-input').value;
+    if (!pw) return;
+    token = pw;
+    document.getElementById('login-error').textContent = '';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('portal-screen').style.display = 'block';
+    loadDashboard();
+    loadFiles();
+  }
+
+  document.getElementById('password-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+  });
+
+  function logout() {
+    token = '';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('portal-screen').style.display = 'none';
+    document.getElementById('password-input').value = '';
+  }
+
+  // ── API ───────────────────────────────────────────────────
+  async function api(method, path, body) {
+    try {
+      const res = await fetch(WORKER_URL + path, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      if (res.status === 401) {
+        document.getElementById('login-error').textContent = 'Wrong password!';
+        logout();
+        return null;
+      }
+      return res.json();
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  // ── Tabs ──────────────────────────────────────────────────
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+    if (tab === 'releases') loadReleases();
+    if (tab === 'files') loadFiles();
+  }
+
+  // ── Dashboard ─────────────────────────────────────────────
+  async function loadDashboard() {
+    const releases = await api('GET', '/releases');
+    if (!releases) return;
+    document.getElementById('stat-total').textContent = releases.length;
+    document.getElementById('stat-released').textContent = releases.filter(r => r.status === 'released').length;
+    document.getElementById('stat-ready').textContent = releases.filter(r => r.status === 'ready').length;
+    document.getElementById('stat-draft').textContent = releases.filter(r => r.status === 'draft').length;
+
+    const upcoming = releases
+      .filter(r => r.release_date && new Date(r.release_date) >= new Date())
+      .sort((a,b) => new Date(a.release_date) - new Date(b.release_date))
+      .slice(0, 3);
+
+    const upcomingEl = document.getElementById('upcoming-list');
+    if (upcoming.length === 0) {
+      upcomingEl.innerHTML = '<div class="loading">No upcoming releases scheduled.</div>';
+      return;
+    }
+    upcomingEl.innerHTML = upcoming.map(r => releaseCardHTML(r)).join('');
+    populateReleaseDropdown(releases);
+  }
+
+  // ── Releases ──────────────────────────────────────────────
+  async function loadReleases() {
+    const releases = await api('GET', '/releases');
+    if (!releases) return;
+    const el = document.getElementById('releases-list');
+    if (releases.length === 0) {
+      el.innerHTML = '<div class="loading">No releases yet. Create your first one!</div>';
+      return;
+    }
+    el.innerHTML = releases.map(r => releaseCardHTML(r)).join('');
+    populateReleaseDropdown(releases);
+  }
+
+  function releaseCardHTML(r) {
+    return `
+      <div class="release-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
+          <h3>${r.title}</h3>
+          <span class="status-pill status-${r.status}">${r.status}</span>
+        </div>
+        <div class="release-meta">
+          ${r.genre ? `🎵 ${r.genre}` : ''} ${r.bpm ? `· ${r.bpm} BPM` : ''} ${r.key ? `· ${r.key}` : ''}<br>
+          ${r.release_date ? `📅 ${new Date(r.release_date).toLocaleDateString('nl-NL', {day:'numeric',month:'long',year:'numeric'})}` : '📅 No date set'}<br>
+          ${r.isrc ? `🔑 ${r.isrc}` : ''}<br>
+          ${r.notes ? `📝 ${r.notes}` : ''}
+        </div>
+        <div class="card-actions">
+          <button class="btn-sm btn-edit" onclick='editRelease(${JSON.stringify(r)})'>Edit</button>
+          <button class="btn-sm btn-delete" onclick="deleteRelease('${r.id}')">Delete</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function populateReleaseDropdown(releases) {
+    const sel = document.getElementById('upload-release');
+    sel.innerHTML = '<option value="uncategorized">Uncategorized</option>' +
+      releases.map(r => `<option value="${r.id}">${r.title}</option>`).join('');
+  }
+
+  // ── Release Modal ─────────────────────────────────────────
+  function openReleaseModal(release = null) {
+    document.getElementById('modal-title').textContent = release ? 'Edit Release' : 'New Release';
+    document.getElementById('release-id').value = release?.id || '';
+    document.getElementById('r-title').value = release?.title || '';
+    document.getElementById('r-genre').value = release?.genre || '';
+    document.getElementById('r-bpm').value = release?.bpm || '';
+    document.getElementById('r-key').value = release?.key || '';
+    document.getElementById('r-date').value = release?.release_date || '';
+    document.getElementById('r-isrc').value = release?.isrc || '';
+    document.getElementById('r-status').value = release?.status || 'draft';
+    document.getElementById('r-notes').value = release?.notes || '';
+    document.getElementById('release-modal').classList.add('open');
+  }
+
+  function closeReleaseModal() {
+    document.getElementById('release-modal').classList.remove('open');
+  }
+
+  function editRelease(release) { openReleaseModal(release); }
+
+  async function saveRelease() {
+    const id = document.getElementById('release-id').value;
+    const body = {
+      title: document.getElementById('r-title').value,
+      artist: 'ΛLΞSS1Λ',
+      genre: document.getElementById('r-genre').value,
+      bpm: parseInt(document.getElementById('r-bpm').value) || null,
+      key: document.getElementById('r-key').value,
+      release_date: document.getElementById('r-date').value || null,
+      isrc: document.getElementById('r-isrc').value,
+      status: document.getElementById('r-status').value,
+      notes: document.getElementById('r-notes').value,
+      label: 'Lunar Eternal Music Group',
+    };
+
+    if (id) {
+      await api('PUT', `/releases/${id}`, body);
+    } else {
+      await api('POST', '/releases', body);
+    }
+
+    closeReleaseModal();
+    loadReleases();
+    loadDashboard();
+  }
+
+  async function deleteRelease(id) {
+    if (!confirm('Delete this release?')) return;
+    await api('DELETE', `/releases/${id}`);
+    loadReleases();
+    loadDashboard();
+  }
+
+  // ── Files ─────────────────────────────────────────────────
+  async function loadFiles() {
+    const data = await api('GET', '/files');
+    if (!data) return;
+    const el = document.getElementById('files-list');
+    if (!data.files || data.files.length === 0) {
+      el.innerHTML = '<div class="loading">No files uploaded yet.</div>';
+      return;
+    }
+    el.innerHTML = data.files.map(f => `
+      <li class="file-item">
+        <div>
+          <div class="file-item-name">${f.key.split('/').pop()}</div>
+          <div class="file-item-meta">${f.key} · ${(f.size / 1024 / 1024).toFixed(2)} MB</div>
+        </div>
+        <div class="file-actions">
+          <button class="btn-sm btn-edit" onclick="downloadFile('${f.key}')">↓ Download</button>
+          <button class="btn-sm btn-delete" onclick="deleteFile('${f.key}')">Delete</button>
+        </div>
+      </li>
+    `).join('');
+  }
+
+  async function uploadFile(input) {
+    const files = Array.from(input.files);
+    const releaseId = document.getElementById('upload-release').value;
+    const folder = document.getElementById('upload-folder').value;
+    const status = document.getElementById('upload-status');
+    for (const file of files) {
+      status.textContent = `Uploading ${file.name}...`;
+      const form = new FormData();
+      form.append('file', file);
+      form.append('folder', folder);
+      form.append('releaseId', releaseId);
+      await fetch(WORKER_URL + '/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: form,
+      });
+    }
+    status.textContent = `✅ ${files.length} file(s) uploaded!`;
+    input.value = '';
+    loadFiles();
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
+    const input = document.getElementById('file-input');
+    const dt = e.dataTransfer;
+    if (dt.files.length) {
+      // Fake the input change event
+      Object.defineProperty(input, 'files', { value: dt.files, configurable: true });
+      uploadFile(input);
+    }
+  }
+
+  async function downloadFile(key) {
+    const res = await fetch(`${WORKER_URL}/file/${encodeURIComponent(key)}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = key.split('/').pop();
+    a.click();
+  }
+
+  async function deleteFile(key) {
+    if (!confirm(`Delete ${key.split('/').pop()}?`)) return;
+    await fetch(`${WORKER_URL}/file/${encodeURIComponent(key)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    loadFiles();
+  }
+</script>
+</body>
+</html>
